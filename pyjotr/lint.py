@@ -7,12 +7,16 @@ import os
 class LintCounters(object):
 
     def __init__(self):
-        self.errors = 0
+        self.error = 0
+        self.style = 0
+        self.warning = 0
         self.runtime = 0
 
     def jsonify(self):
         return dict(
-            errors=self.errors,
+            error=self.error,
+            style=self.style,
+            warning=self.warning,
             runtime=self.runtime
         )
 
@@ -59,8 +63,13 @@ class JsonLintReport(reporters.BaseReporter):
 
     def add_message(self, msg_id, location, msg):
         msg = reporters.Message(self, msg_id, location, msg)
-        self.counters.errors += 1
-        
+        if msg.code[0] in ('C', 'R'):
+            self.counters.style += 1
+        elif msg.code[0] in ('E', 'F'):
+            self.counters.error += 1
+        elif msg.code[0] == 'W':
+            self.counters.warning += 1
+
         l = self.messages[msg.path] if msg.path in self.messages else []
         if not l:
             self.messages[msg.path] = l
