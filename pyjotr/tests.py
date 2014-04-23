@@ -61,16 +61,14 @@ class JsonTestResult(unittest.TestResult):
         self.counters = TestCounters()
 
     def startTestRun(self, test):
-        self.run_start_time = time.time()
+        pass
 
     def stopTestRun(self, test):
-        self.counters.runtime = int((time.time() - self.run_start_time)*1000.0)
+        pass
 
     def startTest(self, test):
         self.start_time = time.time()
-        self.active_info = TestInfo(
-            name=type(test).__module__+'.'+type(test).__name__+'.'+test.id()
-        )
+        self.active_info = TestInfo(test.id())
         self.infos.append(self.active_info)
         sys.stdout = sys.stderr = StringIO()
 
@@ -126,7 +124,9 @@ class JsonTestRunner(object):
 
     def run(self, test):
         self.result = JsonTestResult()
+        start = time.time()
         test(self.result)
+        self.result.counters.runtime = (time.time() - start)*1000.0
         return self.result.counters.failed
 
 
