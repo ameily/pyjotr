@@ -1,13 +1,14 @@
 
 import time
 from pyjotr import lint, tests
+from pyjotr.coverage import JsonCoverageReport
 
 
 class JsonBuild(object):
 
     def __init__(self, id=None, server=None, commit=None, branch=None,
                  runner=None, author=None,  message=None, timestamp=None,
-                 trace=None):
+                 trace=None, coverage=None):
         self.id = id
         self.server = server
         self.commit = commit
@@ -26,6 +27,9 @@ class JsonBuild(object):
 
         self.lint_report = lint.JsonLintReport()
         self.test_runner = tests.JsonTestRunner()
+        self.coverage_report = None
+        if coverage:
+            self.coverage_report = JsonCoverageReport(coverage, coverage.config)
 
     def parse_git(self):
         import subprocess
@@ -38,6 +42,9 @@ class JsonBuild(object):
         self.message = '\n'.join(lines[1:]).strip() if len(lines) > 1 else ''
 
     def finalize(self):
+        if self.coverage_report:
+            self.coverage_report.report()
+
         self.runtime = int((time.time()*1000.0) - self.timestamp)
         self.test_result = self.test_runner.result
         if self.test_result.counters.failed:
@@ -61,5 +68,6 @@ class JsonBuild(object):
                 trace=self.trace
             ),
             tests=self.test_result.jsonify(),
-            lint=self.lint_report.jsonify()
+            lint=self.lint_report.jsonify(),
+            coverage=self.coverage_report.jsonify()
         )
