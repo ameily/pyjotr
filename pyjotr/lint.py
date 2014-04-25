@@ -63,11 +63,11 @@ class JsonLintReport(reporters.BaseReporter):
 
     def add_message(self, msg_id, location, msg):
         msg = reporters.Message(self, msg_id, location, msg)
-        if msg.code[0] in ('C', 'R'):
+        if msg.msg_id[0] in ('C', 'R'):
             self.counters.style += 1
-        elif msg.code[0] in ('E', 'F'):
+        elif msg.msg_id[0] in ('E', 'F'):
             self.counters.error += 1
-        elif msg.code[0] == 'W':
+        elif msg.msg_id[0] == 'W':
             self.counters.warning += 1
 
         l = self.messages[msg.path] if msg.path in self.messages else []
