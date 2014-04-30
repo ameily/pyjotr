@@ -66,7 +66,7 @@ class JsonCoverageReport(Reporter):
         self.counters.hits = sum([f.counters.hits for f in self.files])
 
     def json_file(self, cu, analysis):
-        filename = cu.file_locator.relative_filename(cu.filename)
+        filename = cu.file_locator.relative_filename(cu.filename).replace('\\', '/')
         cfile = JsonFileCoverage(filename)
         for line in sorted(analysis.statements):
             cfile.lines[line] = int(line not in analysis.missing)
